@@ -1,0 +1,38 @@
+.header {
+    background-color: #000000;
+    padding: 20px;
+
+
+  }
+  
+  .header h1 {
+    font-size: 24px;
+    margin: 0;
+
+    height: 38px;
+    flex-shrink: 0;
+    color: white;
+    border: 10px solid green;
+
+
+  }
+  
+  .header nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    color: white;
+    border: 10px solid red;
+
+
+    /* Add more styles for the navigation */
+  }
+  
+  .header nav ul li {
+    margin-right: 10px;
+    border: 10px red;
+
+    /* Add more styles for the list items */
+  }
+  
