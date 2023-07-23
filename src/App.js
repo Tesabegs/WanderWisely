@@ -11,7 +11,7 @@ import DestinationList from './pages/DestinationList';
 function App() {
   return (
     <div>
-      <DestinationList/>
+      <Home/>
     </div>
   );
 }
