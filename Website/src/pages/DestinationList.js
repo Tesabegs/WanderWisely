@@ -32,19 +32,46 @@ const DestinationList = () => {
         details :  "Treasure trove of history, art, and architecture. It is home to iconic attractions such as the Colosseum, Roman Forum, and Vatican City. Explore the Vatican Museums and marvel at the Sistine Chapel, toss a coin into the Trevi Fountain and more.",
         tags : ["History", "Art", "Food"]
     } , 
+
+    {
+        imageUrl: rome, 
+        placesCount : 25, 
+        name :  "Rome, Italy", 
+        details :  "Treasure trove of history, art, and architecture. It is home to iconic attractions such as the Colosseum, Roman Forum, and Vatican City. Explore the Vatican Museums and marvel at the Sistine Chapel, toss a coin into the Trevi Fountain and more.",
+        tags : ["History", "Art", "Food"]
+    } , 
+
+    {
+        imageUrl: rome, 
+        placesCount : 25, 
+        name :  "Rome, Italy", 
+        details :  "Treasure trove of history, art, and architecture. It is home to iconic attractions such as the Colosseum, Roman Forum, and Vatican City. Explore the Vatican Museums and marvel at the Sistine Chapel, toss a coin into the Trevi Fountain and more.",
+        tags : ["History", "Art", "Food"]
+    } , 
+
+    {
+        imageUrl: rome, 
+        placesCount : 25, 
+        name :  "Rome, Italy", 
+        details :  "Treasure trove of history, art, and architecture. It is home to iconic attractions such as the Colosseum, Roman Forum, and Vatican City. Explore the Vatican Museums and marvel at the Sistine Chapel, toss a coin into the Trevi Fountain and more.",
+        tags : ["History", "Art", "Food"]
+    } , 
+
+    
         
     ]
   
     return (
-        
-    <div className='sub-content'> 
      
+     
+    <div className='sub-content'> 
+    
         <div className='subcontent-title'>
-           <div className='content-title2'>World's Most Captivating Countries</div>
+        <div className='content-title2'>World's Most Captivating Countries</div>
         </div>
         <div className='featured-destination' >
-           {destinations.map((destination) => {
-              return <div className='destination-card'>
+        {destinations.map((destination) => {
+            return <div className='destination-card'>
                         <img src={destination.imageUrl} alt={destination.name} className="destination-image" />
                         <div className="destination-info">
                         <div className='tag1'> {destination.placesCount}+ exciting places to visit</div>
@@ -56,10 +83,12 @@ const DestinationList = () => {
                             })}
                         </div>
                         </div>
-                      </div>
-           })}
+                    </div>
+        })}
         </div>
+        
     </div>
+    
        
     
   );
