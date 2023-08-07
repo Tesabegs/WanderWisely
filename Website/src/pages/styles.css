@@ -1,6 +1,10 @@
 /* styles.css */
 
+.header {
+  height: 70px;
+  font-family: SF Pro;
 
+}
 .login-container {
     text-align: center;
     padding: 50px;
@@ -56,7 +60,7 @@
   
   
 
-.container {
+.containers {
     width: auto;
     height: auto;
     background-color: #ffffff;
@@ -74,11 +78,11 @@
 }
 
 .hero {
+    margin-top: -120px;
     align-items: center;
     display: flex;
     flex-direction: column;
     gap: 24px;
-    
   }
   
 .hero-title {
@@ -121,13 +125,10 @@
   }
   
 .search-button {
-    padding: 12px 24px;
+
     background-color: #000000;
     color: #fff;
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    height: 40px;
   }
   
 .main-content {
@@ -275,7 +276,7 @@
   align-items: flex-start;
   max-width: 1280px;
   gap: 32px;
-  border: 10px solid blue;
+  /* border: 10px solid blue; */
 }
 
 .destination-image{
@@ -398,4 +399,23 @@
   font-weight: 400;
   line-height: 24px;
   color: var(--gray-600, #475467);
+}
+
+.details-container {
+  margin-top: 30px;
+  border: 2px solid blue;
+}
+
+.star-container {
+  display: flex;
+  gap: 5px;
+}
+
+.star {
+  font-size: 24px;
+  color: #ccc; /* Default star color */
+}
+
+.star.filled {
+  color: #f39c12; /* Yellow star color */
 }

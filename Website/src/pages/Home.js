@@ -1,7 +1,12 @@
 import React from 'react';
+import {Link} from 'react-router-dom';
+
+import Button from 'react-bootstrap/Button';
+
+
 import './styles.css';
 
-import hero from './images/hero.png';
+// import hero from './images/hero.png';
 import italy from './images/italy.png';
 import iceland from './images/iceland.png';
 import greece from './images/greece.png';
@@ -11,9 +16,12 @@ import rome from './images/rome.png';
 import paris from './images/paris.png';
 
 
+
+
 const Home = () => {
+
   return (
-    <div className="container">
+    <div className="containers">
         <div className='hero-image'id="overlay">
 
         <div className="hero">
@@ -25,7 +33,12 @@ const Home = () => {
           </div>
           <div className="search-bar">
             <input type="text" placeholder="Enter a country" className="search-input" />
-            <button className="search-button">Discover</button>
+            <Link to="/destination/details">
+              {/* <button className="search-button">Discover</button> */}
+              <Button variant='default' style={{ color: "white", background: "black" }}>
+                 Discover
+              </Button>
+            </Link>
           </div>
         </div>
         </div>
