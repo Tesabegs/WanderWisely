@@ -67,7 +67,7 @@ const DestinationList = () => {
     <div className='sub-content'> 
     
         <div className='subcontent-title'>
-        <div className='content-title2'>World's Most Captivating Countries</div>
+        <div className='content-title2'>Destinations to Explore</div>
         </div>
         <div className='featured-destination' >
         {destinations.map((destination) => {

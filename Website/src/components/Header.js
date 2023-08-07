@@ -5,13 +5,7 @@ function Header() {
   return (
     <header className="header">
       {/* Add your header content here */}
-      <h1>Wander Wisely</h1>
-      <nav>
-        <ul>
-          <li >Login</li>
-          <li>SignUp</li>
-        </ul>
-      </nav>
+      <h3 style={{color:"white"}}>Wander Wisely</h3>
     </header>
   );
 }
