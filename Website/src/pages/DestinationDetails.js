@@ -78,7 +78,7 @@ const DestinationDetails = () => {
                         </Card>
                     </Col>
                 ))}
-                <Modal show={showModal} onHide={handleCloseModal}>
+                <Modal size='lg' show={showModal} onHide={handleCloseModal}>
                     <Modal.Header closeButton>
                         <Modal.Title>Hotel Details</Modal.Title>
                     </Modal.Header>
@@ -89,29 +89,29 @@ const DestinationDetails = () => {
                                     {cards[selectedCardIndex].hotel_name}
                                     <Rating initialValue={cards[selectedCardIndex].hotel_rating} allowFraction={true} readonly={true} size={25}/>
                                 </div>
-                                <div className='modal-hotelamenities'>{cards[selectedCardIndex].hotel_amenities}</div>
-                                <div className='modal-hotelamenities'>Pool, restaurant, fitness centre with gym / workout room, spa, room service, bar/lounge, banquet room, breakfast available, business centre with internet access, concierge, conference facilities, dry cleaning, heated pool, hot tub, indoor pool, laundry service, meeting rooms, multilingual staff, non-smoking hotel, paid internet, paid wifi, public wifi, wheelchair access, family rooms, non-smoking rooms, suites</div>
+                                <div className='modal-hotelamenities'>
+                                    {cards[selectedCardIndex].amenities}
+                                </div>
             
                                 <div className='top-reviewers'>
                                     <div className='modal-hotelname'>Top Reviews</div>
-                                    <div className='reviews'>
-                                        Odyssey624335
-                                        <Rating initialValue={selectedCardIndex.hotel_rating} allowFraction={true} readonly={true} size={25}/>
+                                    {cards[selectedCardIndex].review_data.map((review, index) => (
+                                        <div key={index}>
+                                            <div className='reviews' >
+                                                <div >{review.user_name}</div>
+                                                <Rating initialValue={review.hotel_rating} allowFraction={true} readonly={true} size={25} />
+                                            </div>
+                                            <div className='review-words' key={index}>
+                                                {review.user_review}
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <div className='modal-button'>
+                                        <Button variant='default'> Discover this location</Button>
                                     </div>
-                                    <div className='review-words'>Perfect View of the Falls A room with a spectacular view of Niagara Falls. This Junior King Suite is beautifully appointed with a spacious spa bathroom and bedroom. French doors separate the bedroom and living space which boasts a wall to wall front row view of the falls. The night lights that illuminate', '‚Ä¶</div>
-                                    <div className='reviews'>
-                                        Melissa F
-                                        <Rating initialValue={selectedCardIndex.hotel_rating} allowFraction={true} readonly={true} size={25}/>
-                                    </div>
-                                    <div className='review-words'>Great time!! Beautiful hotel. We would stay again. We hot a Groupon and had a wonderful time. Beautiful view overlooking the falls. Lovely and pleasant staff. Restaurant was great. Highly recommend this stunning hotel</div>
-                                    <div className='reviews'>
-                                        Mabdab1
-                                        <Rating initialValue={selectedCardIndex.hotel_rating} allowFraction={true} readonly={true} size={25}/>
-                                    </div>
-                                    <div className='review-words'>Fantastic hotel One night stay in Feb, check in first class and allocated room was a dream  20th floor overlooking the falls was spectacular  Nice touch having 2 comfortable chairs facing the falls  Food , room standard and bar areas great and staff really attentive to our groups needs  Well', '‚Ä¶</div>
-                                    <Button variant='default' style={{ color: "white", background: "black" , width: "200px" }}> Discover this location</Button>
-                                 </div>
+                                </div>
                             </div>
+                                
                         )}
                     </Modal.Body>
                 </Modal>
