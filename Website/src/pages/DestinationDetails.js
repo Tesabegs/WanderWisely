@@ -99,16 +99,16 @@ const DestinationDetails = () => {
                                         <div key={index}>
                                             <div className='reviews' >
                                                 <div >{review.user_name}</div>
-                                                <Rating initialValue={review.hotel_rating} allowFraction={true} readonly={true} size={25} />
+                                                <Rating initialValue={review.user_rating} allowFraction={true} readonly={true} size={25} />
                                             </div>
                                             <div className='review-words' key={index}>
                                                 {review.user_review}
                                             </div>
                                         </div>
                                     ))}
-                                    <div className='modal-button'>
-                                        <Button variant='default'> Discover this location</Button>
-                                    </div>
+                                <div className='modal-button'>
+                                    <Button variant='default'> Discover this location</Button>
+                                </div>
                                 </div>
                             </div>
                                 
@@ -161,3 +161,6 @@ const DestinationDetails = () => {
   }
   
   export default DestinationDetails;
+
+
+
