@@ -15,6 +15,7 @@ function App() {
         <Header />
 				<Routes>
 					<Route path="/" element={<Home />} />
+					<Route path="/" element={<Header/>} />
 					<Route path="/destination" element={<DestinationList />} />
 					<Route path="/destination/details" element={<DestinationDetails />} />
 					{/* <Route path="*" element={<NoMatch />} /> */}

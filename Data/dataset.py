@@ -72,7 +72,7 @@ def processed(category, reviews) -> pd.DataFrame:
 
 
     # Sort the DataFrame by 'Review Count' and 'Average Rating' column in descending order to allow the highest-rated hotels will be ranked at the top.
-    hotels_with_popularity.sort_values(by='Review Count', ascending=False)
+    hotels_with_popularity = hotels_with_popularity.sort_values(by='Review Count', ascending=False)
     sorted_hotels_by_rating = hotels_with_popularity.sort_values(by='Average Rating', ascending=False)
 
     # # Drop hotel_experience column

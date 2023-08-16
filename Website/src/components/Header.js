@@ -1,11 +1,14 @@
 import React from 'react';
 import './styles.css';
+import { Link } from 'react-router-dom';
 
 function Header() {
   return (
     <header className="header">
       {/* Add your header content here */}
-      <h3 style={{color:"white"}}>Wander Wisely</h3>
+      <Link to="/" style={{ textDecoration: 'none', color: 'white' }}>
+        <h3>Wander Wisely</h3>
+      </Link>    
     </header>
   );
 }

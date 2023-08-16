@@ -5,6 +5,7 @@ import './styles.css';
 import {Container, Row, Col, Button, Card, Pagination} from 'react-bootstrap';
 import { Rating } from 'react-simple-star-rating';
 import { Modal } from 'react-bootstrap';
+import Cookies from 'js-cookie';
 
 
 
@@ -23,6 +24,10 @@ const DestinationDetails = () => {
         setSelectedCardIndex(-1);
         setShowModal(false);
     };
+
+    const setReviewCookie = (reviewData) => {
+        Cookies.set('user_review', JSON.stringify(reviewData));
+      };      
 
     //API integration with fetch
     const baseurl = "http://127.0.0.1:5000/hotels?location=canada";
@@ -107,7 +112,7 @@ const DestinationDetails = () => {
                                         </div>
                                     ))}
                                 <div className='modal-button'>
-                                    <Button variant='default'> Discover this location</Button>
+                                    <Button variant='default'  onClick={() => setReviewCookie(cards[selectedCardIndex].review_data)}> Discover this location</Button>
                                 </div>
                                 </div>
                             </div>
