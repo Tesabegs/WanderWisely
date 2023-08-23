@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Link} from 'react-router-dom';
 
 import Button from 'react-bootstrap/Button';
@@ -20,6 +20,13 @@ import paris from './images/paris.png';
 
 const Home = () => {
 
+  const [location, setLocation] = useState('');
+
+  const handleInputChange = (event) => {
+    setLocation(event.target.value);
+  };
+
+
   return (
     <div className="containers">
         <div className='hero-image'id="overlay">
@@ -32,8 +39,8 @@ const Home = () => {
             </div>
           </div>
           <div className="search-bar">
-            <input type="text" placeholder="Enter a country" className="search-input" />
-            <Link to="/destination/details">
+            <input type="text" value={location} onChange={handleInputChange} placeholder="Enter a country" className="search-input" />
+            <Link to="/destination/details" state={{location}} >
               {/* <button className="search-button">Discover</button> */}
               <Button variant='default' style={{ color: "white", background: "black" }}>
                  Discover
