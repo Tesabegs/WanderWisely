@@ -57,6 +57,9 @@ const DestinationDetails = () => {
 
     const setReviewCookie = (reviewData) => {
         Cookies.set('user_review', JSON.stringify(reviewData));
+        console.log("cookie data => ", decodeURIComponent(document.cookie))
+
+        
       };      
 
     //API integration with fetch
