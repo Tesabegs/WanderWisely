@@ -74,6 +74,50 @@ const DestinationDetails = () => {
             return text.substring(0, n) + '...';
         }
     }
+    const [showCookieModal, setShowCookieModal] = useState(true);
+
+    const CookieConsent = ({onAccept}) => {
+        const [showPrompt, setShowPrompt] = useState(true);
+
+        const handleAccept =() => {
+            setShowPrompt(false);
+            onAccept(true);
+        };
+
+        const handleDecline = () => {
+            setShowPrompt(false);
+            onAccept(false);
+        };
+
+        if (!showPrompt) {
+            return null;
+        }
+
+        return(
+            <Modal show={true} onHide={() => setShowPrompt (false)}>
+                <Modal.Header >
+                    <Modal.Title> Cookie Consent</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                <p>This website uses cookies to give you the most relevant information. Your consent is needed to set cookies on your device. </p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant='primary' onClick={handleAccept}> Accept Cookies</Button>
+                    <Button variant='secondary' onClick={handleDecline}> Decline Cookies</Button>
+                </Modal.Footer>
+            </Modal>
+            
+        );
+
+    };
+    const [cookiesAccepted, setCookiesAccepted] = useState(false);
+    const handleCookiesAcceptance = (accepted) => {
+    setCookiesAccepted(accepted);
+
+    if (accepted) {
+
+    }
+  };
 
     // get the value of a cookie by name
       function getCookie(name) {
@@ -92,23 +136,27 @@ const DestinationDetails = () => {
     }
 
     const setReviewCookie = (name, data, country) => {
+        if (cookiesAccepted) {
+            let random = Math.floor(Math.random() * (data.length))
+
+            let trimmedData = trimTextToNCharacters(data[random].user_review)
+
+            let existingData = JSON.parse(getCookie(name)) ?? {}
+
+            // existingData[country] = JSON.stringify(trimmedData)
+            existingData[country] = trimmedData
+
+            existingData = JSON.stringify(existingData)
         
-        let random = Math.floor(Math.random() * (data.length))
+            Cookies.set(name, existingData);
 
-        let trimmedData = trimTextToNCharacters(data[random].user_review)
+            console.log("cookie data by name => ", getCookie(name))
+            console.log("cookie data by value => ", JSON.parse(getCookie(name)))
+            console.log("cookie data => ", decodeURIComponent(document.cookie))
 
-        let existingData = JSON.parse(getCookie(name)) ?? {}
-
-        // existingData[country] = JSON.stringify(trimmedData)
-        existingData[country] = trimmedData
-
-        existingData = JSON.stringify(existingData)
+        }
         
-        Cookies.set(name, existingData);
-
-        console.log("cookie data by name => ", getCookie(name))
-        console.log("cookie data by value => ", JSON.parse(getCookie(name)))
-        console.log("cookie data => ", decodeURIComponent(document.cookie))
+    
     }; 
 
 
@@ -282,11 +330,11 @@ const DestinationDetails = () => {
                                         bulk of the card's content. 
                                     </Card.Text>
                                     {/* <Button variant="primary">Go somewhere</Button> */}
-                                </Card.Body>§                           
+                                </Card.Body>                     
                         </Card>
                     </Col>
                 ))}
-               <ModalItem cards={cards} showModal={showHotelModal} category={"Hotel"}></ModalItem>
+               <ModalItem cards={cards} showModal={showHotelModal} category={"Hotel"} ></ModalItem>
             </Row>
         );
     };
@@ -507,8 +555,11 @@ const DestinationDetails = () => {
     }
     
     return (
+        
 
         <Container className='details-container'>
+
+            {!cookiesAccepted && <CookieConsent onAccept= {handleCookiesAcceptance}/> }
             <h2> {data.state.location.toUpperCase()} </h2>
 
             <p className='location-details'>{getApiResponse.country_data[0].description}</p>
