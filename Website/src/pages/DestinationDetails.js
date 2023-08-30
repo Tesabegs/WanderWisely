@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom'
+import { json, useLocation } from 'react-router-dom'
 
 import './styles.css';
 
@@ -10,17 +10,16 @@ import { Modal } from 'react-bootstrap';
 import Cookies from 'js-cookie';
 
 
-
 import paris from './images/image.png';
 
 const DestinationDetails = () => {
     const [selectedCardIndex, setSelectedCardIndex] = useState(-1);
     const [showHotelModal, setShowHotelModal] = useState(false);
+    const [showHotelUbModal, setShowHotelUbModal] = useState(false);
     const [showAttractionModal, setShowAttractionModal] = useState(false);
     const [showRestaurantModal, setShowRestaurantModal] = useState(false);
 
     const [loading, setLoading] = useState(true);
-
 
     const handleCardClick = (index, str) => {
         setSelectedCardIndex(index);
@@ -29,18 +28,30 @@ const DestinationDetails = () => {
                 setShowHotelModal(true)
                 setShowAttractionModal(false)
                 setShowRestaurantModal(false)
+                setShowHotelUbModal(false)
+                break;
+            
+            case "hotel_ub":
+                setShowHotelModal(false)
+                setShowAttractionModal(false)
+                setShowRestaurantModal(false)
+                setShowHotelUbModal(true)
+
                 break;
 
             case "attraction":
                 setShowHotelModal(false)
                 setShowAttractionModal(true)
                 setShowRestaurantModal(false)
+                setShowHotelUbModal(false)
                 break;
             
             case "restaurant":
                 setShowHotelModal(false)
                 setShowAttractionModal(false)
                 setShowRestaurantModal(true)
+                setShowHotelUbModal(false)
+
                 break;
         
             default:
@@ -51,16 +62,55 @@ const DestinationDetails = () => {
     const handleCloseModal = () => {
         setSelectedCardIndex(-1);
         setShowHotelModal(false);
-        setShowAttractionModal(false)
-        setShowRestaurantModal(false)
+        setShowHotelUbModal(false);
+        setShowAttractionModal(false);
+        setShowRestaurantModal(false);
     };
 
-    const setReviewCookie = (reviewData) => {
-        Cookies.set('user_review', JSON.stringify(reviewData));
-        console.log("cookie data => ", decodeURIComponent(document.cookie))
+    function trimTextToNCharacters(text, n=501) {
+        if (text.length <= n) {
+            return text;
+        } else {
+            return text.substring(0, n) + '...';
+        }
+    }
 
+    // get the value of a cookie by name
+      function getCookie(name) {
+        const cookies = document.cookie.split('; ');
         
-      };      
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].split('=');
+            const cookieName = decodeURIComponent(cookie[0]);
+            
+            if (cookieName === name) {
+                return decodeURIComponent(cookie[1]);
+            }
+        }
+        
+        return null;
+    }
+
+    const setReviewCookie = (name, data, country) => {
+        
+        let random = Math.floor(Math.random() * (data.length))
+
+        let trimmedData = trimTextToNCharacters(data[random].user_review)
+
+        let existingData = JSON.parse(getCookie(name)) ?? {}
+
+        // existingData[country] = JSON.stringify(trimmedData)
+        existingData[country] = trimmedData
+
+        existingData = JSON.stringify(existingData)
+        
+        Cookies.set(name, existingData);
+
+        console.log("cookie data by name => ", getCookie(name))
+        console.log("cookie data by value => ", JSON.parse(getCookie(name)))
+        console.log("cookie data => ", decodeURIComponent(document.cookie))
+    }; 
+
 
     //API integration with fetch
     const [getApiResponse, setGetApiResponse] = useState([]);
@@ -68,11 +118,20 @@ const DestinationDetails = () => {
     const { location } = data.state
 
     
-    const handleGetRequest = async (location) => {
+    const handleGetRequest = async (location, cookie_data) => {
         const baseurl = `http://127.0.0.1:5000/hotels?location=${location}`;
+      
+        const data_ = {cookie_data};
 
         try {
-            const response = await fetch (baseurl);
+            
+            const response = await fetch(baseurl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data_)
+              });
             const data = await response.json();
             setGetApiResponse(data);
             setLoading(false)
@@ -86,12 +145,31 @@ const DestinationDetails = () => {
 
     useEffect(() => {
         // Fetch data on page load
-        handleGetRequest(location);
+        // async function callHandleGetRequest() {
+        //     await handleGetRequest(location);
+        // }
+        // callHandleGetRequest();
+
+        let cookie_data_obj = getCookie("Hotel")
+        let cookie_data = ""
+
+
+        if (cookie_data_obj != null) {
+            cookie_data_obj= JSON.parse(cookie_data_obj);
+
+            for (const k in cookie_data_obj) {
+                if (k == location.toLowerCase()) {
+                    cookie_data = cookie_data_obj[k]
+                }
+            }
+        }
+
+        handleGetRequest(location, cookie_data);
+    
       }, [location]);
 
 
     //CardsData is the original list/array
-   
     const [currentHotelPage, setCurrentHotelPage] = useState(1);
     const handleHotelPageChange = (newPage) => {
         setCurrentHotelPage(newPage);
@@ -107,11 +185,30 @@ const DestinationDetails = () => {
         setCurrentRestaurantPage(newPage);
     };
 
+    //Cards data user based flow
+    const [currentHotelUbPage, setCurrentHotelUbPage] = useState(1);
+    const handleHotelUbPageChange = (newPage) => {
+        setCurrentHotelUbPage(newPage);
+    };
+
+
     if (loading) { 
         return;
     }
 
     const ModalItem = ({cards, showModal, category}) => {
+        
+
+        // for the user_based flow, convert review_data to an array
+        for (let i = 0; i<cards.length; i++) {
+
+            let review_data = cards[i].review_data
+
+            if (typeof review_data === 'object' && review_data !== null && !Array.isArray(review_data)) {
+                cards[i].review_data = [cards[i].review_data]
+            }
+        }
+        
         return <Modal size='lg' show={showModal} onHide={handleCloseModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>{category} Details</Modal.Title>
@@ -129,7 +226,7 @@ const DestinationDetails = () => {
 
                             <div className='top-reviewers'>
                                 <div className='modal-hotelname'>Top Reviews</div>
-                                {cards[selectedCardIndex].review_data.map((review, index) => (
+                                { cards[selectedCardIndex].review_data.map((review, index) => (
                                     <div key={index}>
                                         <div className='reviews' >
                                             <div >{review.user_name}</div>
@@ -140,9 +237,10 @@ const DestinationDetails = () => {
                                         </div>
                                     </div>
                                 ))}
-                            <div className='modal-button'>
-                                <Button variant='default'  onClick={() => setReviewCookie(cards[selectedCardIndex].review_data)}> Discover this location</Button>
-                            </div>
+                                
+                                <div className='modal-button'>
+                                    <Button variant='contained' type='submit' onClick={() => setReviewCookie(category, cards[selectedCardIndex].review_data, cards[selectedCardIndex].country)}> Discover this location</Button>
+                                </div>
                             </div>
                         </div>
                             
@@ -184,7 +282,7 @@ const DestinationDetails = () => {
                                         bulk of the card's content. 
                                     </Card.Text>
                                     {/* <Button variant="primary">Go somewhere</Button> */}
-                                </Card.Body>
+                                </Card.Body>§                           
                         </Card>
                     </Col>
                 ))}
@@ -216,70 +314,69 @@ const DestinationDetails = () => {
         
     }
 
-      //Attraction
-      const AttractionsCardsData = getApiResponse.attraction_data;
-      const AttractionsCardsPerPage = 3;
-      const totalAttractionCards = AttractionsCardsData?.length;
-      const lastAttractionCardIndex = currentAttractionPage * AttractionsCardsPerPage;
-      const firstAttractionCardIndex = lastAttractionCardIndex - AttractionsCardsPerPage;
-      const currentAttractionCards = AttractionsCardsData?.slice(firstAttractionCardIndex, lastAttractionCardIndex);
-      const totalAttractionPages = Math.ceil(totalAttractionCards / AttractionsCardsPerPage);
+    //Attraction
+    const AttractionsCardsData = getApiResponse.attraction_data;
+    const AttractionsCardsPerPage = 3;
+    const totalAttractionCards = AttractionsCardsData?.length;
+    const lastAttractionCardIndex = currentAttractionPage * AttractionsCardsPerPage;
+    const firstAttractionCardIndex = lastAttractionCardIndex - AttractionsCardsPerPage;
+    const currentAttractionCards = AttractionsCardsData?.slice(firstAttractionCardIndex, lastAttractionCardIndex);
+    const totalAttractionPages = Math.ceil(totalAttractionCards / AttractionsCardsPerPage);
   
-      const AttractionsCardList = ({cards}) => {
-          return (
-              <Row>
-                  {cards.map((item, index) => (
-                      <Col key={index}>
-                          <Card style={{ width: '21rem', cursor: 'pointer' }} onClick={() => handleCardClick(index, "attraction")}>
-                              <Card.Img variant="top" fluid src={paris} />
-                              <Card.Body>
-                                      <div style={{display : "flex", justifyContent:"space-between"}}>
-                                          <Card.Title>{item.name}</Card.Title>
-                                          <Row>
-                                              <Rating
-                                              initialValue={item.rating}
-                                              allowFraction={true}
-                                              readonly={true}
-                                              size={25}
-                                              />
-                                          </Row>
-                                      </div>
-                                      <Card.Text>
-                                         quick example text to build on the card title and make up the
-                                          bulk of the card's content. 
-                                      </Card.Text>
-                                      {/* <Button variant="primary">Go somewhere</Button> */}
-                                  </Card.Body>
-                          </Card>
-                      </Col>
-                  ))}
-                 <ModalItem cards={cards} showModal={showAttractionModal} category={"Attraction"}></ModalItem>
-              </Row>
-          );
-      };
+    const AttractionsCardList = ({cards}) => {
+        return (
+            <Row>
+                {cards.map((item, index) => (
+                    <Col key={index}>
+                        <Card style={{ width: '21rem', cursor: 'pointer' }} onClick={() => handleCardClick(index, "attraction")}>
+                            <Card.Img variant="top" fluid src={paris} />
+                            <Card.Body>
+                                    <div style={{display : "flex", justifyContent:"space-between"}}>
+                                        <Card.Title>{item.name}</Card.Title>
+                                        <Row>
+                                            <Rating
+                                            initialValue={item.rating}
+                                            allowFraction={true}
+                                            readonly={true}
+                                            size={25}
+                                            />
+                                        </Row>
+                                    </div>
+                                    <Card.Text>
+                                        quick example text to build on the card title and make up the
+                                        bulk of the card's content. 
+                                    </Card.Text>
+                                    {/* <Button variant="primary">Go somewhere</Button> */}
+                                </Card.Body>
+                        </Card>
+                    </Col>
+                ))}
+                <ModalItem cards={cards} showModal={showAttractionModal} category={"Attraction"}></ModalItem>
+            </Row>
+        );
+    };
 
-      const AttractionData = () => {
-        if (AttractionsCardsData.length > 0) {
-            return <div style={{marginTop:"25px"}}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <h5>Attractions</h5>
-                        <Pagination>
-                            {Array.from({ length: totalAttractionPages }).map((_, index) => (
-                            <Pagination.Item key={index} active={index + 1 === currentAttractionPage} onClick={() => handleAttractionPageChange(index + 1)}>                                                                         
-                            {index + 1}
-                            </Pagination.Item>
-                            ))}
-                        </Pagination>
-                    </div>
-                
-                    <AttractionsCardList cards={currentAttractionCards} selectedCardIndex={selectedCardIndex} onCardClick={setSelectedCardIndex}/>
-                 </div>
-        }
-        else {
-            return <div style={{marginTop:"25px"}}>No Attractions data yet for {data.state.location.toUpperCase()} </div>
-        }
+    const AttractionData = () => {
+    if (AttractionsCardsData.length > 0) {
+        return <div style={{marginTop:"25px"}}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <h5>Attractions</h5>
+                    <Pagination>
+                        {Array.from({ length: totalAttractionPages }).map((_, index) => (
+                        <Pagination.Item key={index} active={index + 1 === currentAttractionPage} onClick={() => handleAttractionPageChange(index + 1)}>                                                                         
+                        {index + 1}
+                        </Pagination.Item>
+                        ))}
+                    </Pagination>
+                </div>
+            
+                <AttractionsCardList cards={currentAttractionCards} selectedCardIndex={selectedCardIndex} onCardClick={setSelectedCardIndex}/>
+                </div>
     }
-  
+    else {
+        return <div style={{marginTop:"25px"}}>No Attractions data yet for {data.state.location.toUpperCase()} </div>
+    }
+    }
 
     //Restaurant
     const RestaurantsCardsData = getApiResponse.restaurant_data;
@@ -343,13 +440,78 @@ const DestinationDetails = () => {
             return <div style={{marginTop:"25px"}}>No Restaurant data yet for {data.state.location.toUpperCase()} </div>
         }
     }
+
+    //Hotel data user based
+    const HotelUbCardsData = getApiResponse.hotel_data_ub;
+
+
+    const HotelUbCardsPerPage = 3;
+    const totalHotelUbCards = HotelUbCardsData?.length;
+    const lastHotelUbCardIndex = currentHotelUbPage * HotelUbCardsPerPage;
+    const firstHotelUbCardIndex = lastHotelUbCardIndex - HotelUbCardsPerPage;
+    const currentHotelUbCards = HotelUbCardsData?.slice(firstHotelUbCardIndex, lastHotelUbCardIndex);
+    const totalHotelUbPages = Math.ceil(totalHotelUbCards / HotelUbCardsPerPage);
+
+    const HotelUbCardList = ({cards}) => {
+        return (
+            <Row>
+                {cards.map((item, index) => (
+                    <Col key={index}>
+                        {/* onClick={() => handleCardClick(index, "hotel")} */}
+                        <Card style={{ width: '21rem', cursor: 'pointer' }} onClick={() => handleCardClick(index, "hotel_ub")} >
+                            <Card.Img variant="top" fluid src={paris} />
+                            <Card.Body>
+                                    <div style={{display : "flex", justifyContent:"space-between"}}>
+                                        <Card.Title>{item.name}</Card.Title>
+                                        <Row>
+                                            <Rating
+                                            initialValue={item.rating}
+                                            allowFraction={true}
+                                            readonly={true}
+                                            size={25}
+                                            />
+                                        </Row>
+                                    </div>
+                                    <Card.Text>
+                                       quick example text to build on the card title and make up the
+                                        bulk of the card's content. 
+                                    </Card.Text>
+                                    {/* <Button variant="primary">Go somewhere</Button> */}
+                                </Card.Body>
+                        </Card>
+                    </Col>
+                ))}
+               <ModalItem cards={cards} showModal={showHotelUbModal} category={"Hotel"}></ModalItem>
+            </Row>
+        );
+    };
+
+    const HotelUbData = () => {
+        if (HotelUbCardsData.length > 0) {
+            return <div style={{marginTop:"20px"}}>
+                        <h3>Based on your Interests</h3>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <h5>Hotels</h5>
+                        <Pagination>
+                            {Array.from({ length: totalHotelUbPages }).map((_, index) => (
+                            <Pagination.Item key={index} active={index + 1 === currentHotelUbPage} onClick={() => handleHotelUbPageChange(index + 1)}>                                                                         
+                            {index + 1}
+                            </Pagination.Item>
+                            ))}
+                        </Pagination>
+                    </div>
+                    
+                    <HotelUbCardList cards={currentHotelUbCards} selectedCardIndex={selectedCardIndex} onCardClick={setSelectedCardIndex}/> 
+                </div>
+        }
+    }
     
     return (
 
         <Container className='details-container'>
             <h2> {data.state.location.toUpperCase()} </h2>
 
-            <p className='location-details'>Ontario is a vibrant and enchanting city located in the heart of Morocco. Lose yourself in the maze-like streets of the medina, experience the lively atmosphere of Djemaa el-Fna square, explore the stunning Bahia Palace and the vibrant souks, and relax in tranquil gardens. Immerse yourself in Moroccan culture, indulge in traditional cuisine, and marvel at the intricate craftsmanship of the city's architecture, making Marrakech an alluring destination.</p>
+            <p className='location-details'>{getApiResponse.country_data[0].description}</p>
             
             {/* Hotels */}
             <HotelData />
@@ -359,12 +521,12 @@ const DestinationDetails = () => {
 
             {/* Restaurants */}
             <RestaurantData />
+
+            {/* Hotels User based*/}
+            <HotelUbData />
         
         </Container>
     );
   }
   
   export default DestinationDetails;
-
-
-

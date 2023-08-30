@@ -17,16 +17,19 @@ app=Flask(__name__)
 CORS(app)
 
 # Fetch hotels by location
-@app.route('/hotels', methods=['GET'])  
+@app.route('/hotels', methods=['POST'])  
 def fetchHotels():
     
     location=request.args.get('location').lower()
+    cookie_data = request.get_json().get("cookie_data")
 
-    return fetchAllData(location)
+    
+
+    print("cookieData is ======> ", cookie_data)
+
+    return fetchAllData(location, cookie_data)
          
 
 if __name__ == 'main':
     app.run()
-
  
-   

@@ -1,9 +1,14 @@
 import os
 
-from flask import jsonify
-
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import pickle
+import numpy as np
+import random
+import json
 
 import pandas as pd
+
 data_dir = os.path.dirname(os.path.abspath(__file__))
 
 csv_hotels_path = os.path.join(data_dir, 'Raw/Hotels', 'Hotel.csv')
@@ -15,7 +20,7 @@ csv_attractions_review_path = os.path.join(data_dir, 'Raw/Attractions','attracti
 csv_restaurants_path = os.path.join(data_dir, 'Raw/Restaurants', 'Restaurants.csv')
 csv_restaurants_review_path = os.path.join(data_dir, 'Raw/Restaurants','Restaurants_reviews.csv')
 
-
+csv_country= os.path.join(data_dir, 'Raw', 'country_description.csv')
 
 def processedHotel() -> pd.DataFrame:
 
@@ -249,6 +254,50 @@ def processedRestaurants() -> pd.DataFrame:
     return sorted_restaurants_by_rating
 
 
+def processedItemsUb(cookie_data : str, category, reviews) -> any:
+
+    # Merge the datasets using a common column, e.g., 'id'
+    merged_data = pd.merge(reviews, category, on='id', how='inner')
+
+    train = merged_data.iloc[1:]  
+    test = merged_data.iloc[0]
+
+    #cosine similarity task
+    # Initialize and fit the TF-IDF vectorizer, using feature made of words
+    vectorizer = TfidfVectorizer(analyzer='word')
+    tfidf_matrix = vectorizer.fit_transform(train['user_review'].values)
+
+    # Calculate cosine similarities for the original dataset
+    # cosine_similarities = cosine_similarity(tfidf_matrix)
+
+    #Save the trained vectorizer for future use
+    with open('vectorizer.pkl', 'wb') as vectorizer_file:
+        pickle.dump(vectorizer, vectorizer_file)
+
+    # Load the previously trained vectorizer
+    with open('vectorizer.pkl', 'rb') as vectorizer_file:
+        loaded_vectorizer = pickle.load(vectorizer_file)
+
+    # Randomly select one user's review for testing
+    # selected_entry = random.choice(cookie_data)
+    # selected_review = selected_entry["user_review"]
+
+    # Transform new text reviews into TF-IDF vectors using the existing vocabulary
+    new_tfidf_matrix = loaded_vectorizer.transform([cookie_data])
+
+    # Calculate cosine similarities between new and old data
+    cosine_similarities = cosine_similarity(new_tfidf_matrix, tfidf_matrix)
+    most_similar_indices = np.argsort(cosine_similarities, axis=1)[:, -3:]
+
+    # Display the most similar entries from the original dataset for each entry in the new dataset
+    for i, new_entry in enumerate([cookie_data]):
+        most_similar_index = most_similar_indices[i]
+        most_similar_entry = train.values[most_similar_index]
+    
+    return most_similar_entry
+
+
+
 def fetchHotelsByLocation(location : str) -> dict[str, list[any]] :
 
     hotels = processedHotel()
@@ -290,17 +339,154 @@ def fetchAttractionsByLocation(location : str) -> dict[str, list[any]] :
     #Select the top 10 attractions from the sorted DataFrame, I am using 30 to provide users with a sufficient number of options while still maintaining a manageable list that avoids overwhelming them.
     data = attractions_by_location.head(12)
 
-    # if data.empty:
-    #     return {"error": 1, "message":f"No data exists yet for {location}"}
+    data = data.to_dict(orient='records')
+    
+    return data
+
+def fetchHotelsUb(cookie_data : str, location = None) -> dict[str, list[any]] :
+
+    if not cookie_data:
+        return []
+
+    #Loading the dataset
+    category = pd.read_csv(csv_hotels_path)
+    reviews = pd.read_csv(csv_hotels_review_path) 
+
+    hotels = processedItemsUb(cookie_data, category, reviews)
+
+    # Create a DataFrame
+    column_names = [
+        'id', 'user_rating', 'user_name', 'user_review', 'name', 'rating',
+        'experience', 'amenities', 'address', 'country',
+        'description_link', 'discover_link', 'image_link'
+    ]
+    hotels_df = pd.DataFrame(hotels, columns=column_names)
+
+    # Group user-related columns into a list of dictionaries
+    user_data = hotels_df[['user_name', 'user_review', 'user_rating']].apply(lambda row: {
+        'user_name': row['user_name'],
+        'user_review': row['user_review'],
+        'user_rating': row['user_rating']
+    }, axis=1)
+
+    # Create the 'review_data' column as an array of user data
+    hotels_df['review_data'] = user_data.tolist()
+
+    # Drop the 'user_name', 'user_review', and 'user_rating' columns
+    hotels_df.drop(columns=['user_name', 'user_review', 'user_rating'], inplace=True)
+
+    #convert countries to lower case
+    hotels_df['country'] = hotels_df['country'].str.lower()
+
+    # filter by location
+    hotels_df = hotels_df[hotels_df['country'] == location]
+    
+    #Select the top 10 hotels from the sorted DataFrame, I am using 30 to provide users with a sufficient number of options while still maintaining a manageable list that avoids overwhelming them.
+    data = hotels_df.head(12)
 
     data = data.to_dict(orient='records')
     
     return data
 
-def fetchAllData (location : str) -> dict[str, list[any]]:
+def fetchAttractionsUb(cookie_data : str, location = None) -> dict[str, list[any]] :
+    
+    if not cookie_data:
+        return []
+
+    #Loading the dataset
+    category = pd.read_csv(csv_attractions_path)
+    reviews = pd.read_csv(csv_attractions_review_path) 
+
+    attraction = processedItemsUb(cookie_data, category, reviews)
+
+    # Create a DataFrame
+    column_names = [
+        'id', 'Average Rating', 'user_name', 'user_review', 'name', 'rating',
+        'experience', 'amenities', 'address', 'country',
+        'description_link', 'discover_link', 'image_link'
+    ]
+    attractions_df = pd.DataFrame(attraction, columns=column_names)
+
+    # convert countries to lower case
+    attractions_df['country'] = attractions_df['country'].str.lower()
+
+    # filter by location
+    attractions_df = attractions_df[attractions_df['country'] == location]
+
+    
+    #Select the top 10 attraction from the sorted DataFrame, I am using 30 to provide users with a sufficient number of options while still maintaining a manageable list that avoids overwhelming them.
+    data = attractions_df.head(12)
+
+    data = data.to_dict(orient='records')
+    
+    return data
+
+def fetchRestaurantsUb(cookie_data : str, location = None) -> dict[str, list[any]] :
+
+    if not cookie_data:
+        return []
+
+    #Loading the dataset
+    category = pd.read_csv(csv_restaurants_path)
+    reviews = pd.read_csv(csv_restaurants_review_path) 
+
+    restaurant = processedItemsUb(cookie_data, category, reviews)
+
+    # Create a DataFrame
+    column_names = [
+        'id', 'Average Rating', 'user_name', 'user_review', 'name', 'rating',
+        'experience', 'amenities', 'address', 'country',
+        'description_link', 'discover_link', 'image_link'
+    ]
+    restaurants_df = pd.DataFrame(restaurant, columns=column_names)
+
+    # convert countries to lower case
+    restaurants_df['country'] = restaurants_df['country'].str.lower()
+
+    # filter by location
+    restaurants_df = restaurants_df[restaurants_df['country'] == location]
+    
+    #Select the top 10 restaurant from the sorted DataFrame, I am using 30 to provide users with a sufficient number of options while still maintaining a manageable list that avoids overwhelming them.
+    data = restaurants_df.head(12)
+
+    data = data.to_dict(orient='records')
+    
+    return data
+
+def fetchCountry(location) -> dict[str, list[any]] :
+    
+   
+    #Loading the dataset
+    country = pd.read_csv(csv_country)
+
+    # Create a DataFrame
+    column_names = [
+        'country', 'description', 'image'
+    ]
+    country_df = pd.DataFrame(country, columns=column_names)
+
+    # convert countries to lower case
+    country_df['country'] = country_df['country'].str.lower()
+
+    # filter by location
+    country_df = country_df[country_df['country'] == location]
+
+    
+    #Select the top 10 attraction from the sorted DataFrame, I am using 30 to provide users with a sufficient number of options while still maintaining a manageable list that avoids overwhelming them.
+    data = country_df.head(1)
+
+    data = data.to_dict(orient='records')
+    
+    return data
+
+def fetchAllData (location : str, cookieData: str = None) -> dict[str, list[any]]:
     data = {
         "hotel_data": fetchHotelsByLocation(location),
         "restaurant_data": fetchRestaurantsByLocation(location),
-        "attraction_data": fetchAttractionsByLocation(location)
+        "attraction_data": fetchAttractionsByLocation(location),
+        "hotel_data_ub" : fetchHotelsUb(cookieData, location),
+        # "attractions_data_ub" : fetchAttractionsUb(cookieData, location),
+        # "restaurants_data_ub" : fetchRestaurantsUb(cookieData, location),
+        "country_data" : fetchCountry(location)
     }
     return data

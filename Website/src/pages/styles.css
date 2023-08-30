@@ -462,8 +462,9 @@
   padding: 10px 20px;
   font-size: 16px;
   background-color: #000000;
-  color: #fff;
+  color: #ffffff;
   border-radius: 4px;
   cursor: pointer;
   margin-top: 10px;
+  border: 1px solid var(--black, #000);
 }
