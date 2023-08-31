@@ -446,10 +446,10 @@ const DestinationDetails = () => {
                             <Card.Img variant="top" fluid src={item.image_link} />
                             <Card.Body>
                                     <div style={{display : "flex", justifyContent:"space-between"}}>
-                                        <Card.Title>{item.hotel_name}</Card.Title>
+                                        <Card.Title>{item.name}</Card.Title>
                                         <Row>
                                             <Rating
-                                            initialValue={item.hotel_rating}
+                                            initialValue={item.rating}
                                             allowFraction={true}
                                             readonly={true}
                                             size={25}

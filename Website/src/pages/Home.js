@@ -16,8 +16,6 @@ import rome from './images/rome.png';
 import paris from './images/paris.png';
 
 
-
-
 const Home = () => {
 
   const [location, setLocation] = useState('');
@@ -26,8 +24,6 @@ const Home = () => {
   const handleInputChange = (event) => {
     setLocation(event.target.value);
   };
-
-  
 
 
   return (
