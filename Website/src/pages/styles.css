@@ -468,3 +468,12 @@
   margin-top: 10px;
   border: 1px solid var(--black, #000);
 }
+.card-body{
+  height: 150px; 
+  overflow: hidden;
+}
+
+.interest-text{
+  color: green;
+  font-weight: 700;
+}

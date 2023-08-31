@@ -358,7 +358,7 @@ def fetchHotelsUb(cookie_data : str, location = None) -> dict[str, list[any]] :
     column_names = [
         'id', 'user_rating', 'user_name', 'user_review', 'name', 'rating',
         'experience', 'amenities', 'address', 'country',
-        'description_link', 'discover_link', 'image_link'
+        'discover_link', 'image_link', 'description'
     ]
     hotels_df = pd.DataFrame(hotels, columns=column_names)
 
@@ -436,7 +436,7 @@ def fetchRestaurantsUb(cookie_data : str, location = None) -> dict[str, list[any
     column_names = [
         'id', 'Average Rating', 'user_name', 'user_review', 'name', 'rating',
         'experience', 'amenities', 'address', 'country',
-        'description_link', 'discover_link', 'image_link'
+        'description', 'discover_link', 'image_link'
     ]
     restaurants_df = pd.DataFrame(restaurant, columns=column_names)
 

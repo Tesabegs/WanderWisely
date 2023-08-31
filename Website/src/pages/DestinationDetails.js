@@ -99,7 +99,7 @@ const DestinationDetails = () => {
                     <Modal.Title> Cookie Consent</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                <p>This website uses cookies to give you the most relevant information. Your consent is needed to set cookies on your device. </p>
+                    <p>This website uses cookies to give you the most relevant information. Your consent is needed to set cookies on your device. </p>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant='primary' onClick={handleAccept}> Accept Cookies</Button>
@@ -112,11 +112,10 @@ const DestinationDetails = () => {
     };
     const [cookiesAccepted, setCookiesAccepted] = useState(false);
     const handleCookiesAcceptance = (accepted) => {
-    setCookiesAccepted(accepted);
+        if (accepted) {
+            setCookiesAccepted(true);
 
-    if (accepted) {
-
-    }
+        }
   };
 
     // get the value of a cookie by name
@@ -286,8 +285,8 @@ const DestinationDetails = () => {
                                     </div>
                                 ))}
                                 
-                                <div className='modal-button'>
-                                    <Button variant='contained' type='submit' onClick={() => setReviewCookie(category, cards[selectedCardIndex].review_data, cards[selectedCardIndex].country)}> Discover this location</Button>
+                                <div >
+                                    <button className='modal-button' onClick={() => setReviewCookie(category, cards[selectedCardIndex].review_data, cards[selectedCardIndex].country)}> Discover this location</button>
                                 </div>
                             </div>
                         </div>
@@ -312,7 +311,7 @@ const DestinationDetails = () => {
                 {cards.map((item, index) => (
                     <Col key={index}>
                         <Card style={{ width: '21rem', cursor: 'pointer' }} onClick={() => handleCardClick(index, "hotel")}>
-                            <Card.Img variant="top" fluid src={paris} />
+                            <Card.Img variant="top" fluid src={item.image_link} />
                             <Card.Body>
                                     <div style={{display : "flex", justifyContent:"space-between"}}>
                                         <Card.Title>{item.name}</Card.Title>
@@ -326,8 +325,10 @@ const DestinationDetails = () => {
                                         </Row>
                                     </div>
                                     <Card.Text>
-                                       quick example text to build on the card title and make up the
-                                        bulk of the card's content. 
+                                        {item.description.length > 120
+                                            ? item.description.substring(0,120) + "..."
+                                            : item.description}
+                                    
                                     </Card.Text>
                                     {/* <Button variant="primary">Go somewhere</Button> */}
                                 </Card.Body>                     
@@ -377,7 +378,7 @@ const DestinationDetails = () => {
                 {cards.map((item, index) => (
                     <Col key={index}>
                         <Card style={{ width: '21rem', cursor: 'pointer' }} onClick={() => handleCardClick(index, "attraction")}>
-                            <Card.Img variant="top" fluid src={paris} />
+                            <Card.Img variant="top" fluid src={item.image_link} />
                             <Card.Body>
                                     <div style={{display : "flex", justifyContent:"space-between"}}>
                                         <Card.Title>{item.name}</Card.Title>
@@ -391,8 +392,9 @@ const DestinationDetails = () => {
                                         </Row>
                                     </div>
                                     <Card.Text>
-                                        quick example text to build on the card title and make up the
-                                        bulk of the card's content. 
+                                        {item.description.length > 120
+                                            ? item.description.substring(0,120) + "..."
+                                            : item.description} 
                                     </Card.Text>
                                     {/* <Button variant="primary">Go somewhere</Button> */}
                                 </Card.Body>
@@ -441,7 +443,7 @@ const DestinationDetails = () => {
                 {cards.map((item, index) => (
                     <Col key={index}>
                         <Card style={{ width: '21rem', cursor: 'pointer' }} onClick={() => handleCardClick(index, "restaurant")}>
-                            <Card.Img variant="top" fluid src={paris} />
+                            <Card.Img variant="top" fluid src={item.image_link} />
                             <Card.Body>
                                     <div style={{display : "flex", justifyContent:"space-between"}}>
                                         <Card.Title>{item.hotel_name}</Card.Title>
@@ -455,8 +457,9 @@ const DestinationDetails = () => {
                                         </Row>
                                     </div>
                                     <Card.Text>
-                                       quick example text to build on the card title and make up the
-                                        bulk of the card's content. 
+                                        {item.description.length > 120
+                                            ? item.description.substring(0,120) + "..."
+                                            : item.description}
                                     </Card.Text>
                                     {/* <Button variant="primary">Go somewhere</Button> */}
                                 </Card.Body>
@@ -507,8 +510,8 @@ const DestinationDetails = () => {
                     <Col key={index}>
                         {/* onClick={() => handleCardClick(index, "hotel")} */}
                         <Card style={{ width: '21rem', cursor: 'pointer' }} onClick={() => handleCardClick(index, "hotel_ub")} >
-                            <Card.Img variant="top" fluid src={paris} />
-                            <Card.Body>
+                            <Card.Img variant="top" fluid src={item.image_link} />
+                            <Card.Body className='card-body'>
                                     <div style={{display : "flex", justifyContent:"space-between"}}>
                                         <Card.Title>{item.name}</Card.Title>
                                         <Row>
@@ -521,8 +524,9 @@ const DestinationDetails = () => {
                                         </Row>
                                     </div>
                                     <Card.Text>
-                                       quick example text to build on the card title and make up the
-                                        bulk of the card's content. 
+                                       {item.description.length > 120
+                                            ? item.description.substring(0,120) + "..."
+                                            : item.description}
                                     </Card.Text>
                                     {/* <Button variant="primary">Go somewhere</Button> */}
                                 </Card.Body>
@@ -537,7 +541,7 @@ const DestinationDetails = () => {
     const HotelUbData = () => {
         if (HotelUbCardsData.length > 0) {
             return <div style={{marginTop:"20px"}}>
-                        <h3>Based on your Interests</h3>
+                        <h3 className='interest-text'>Based on your Interests</h3>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                         <h5>Hotels</h5>
                         <Pagination>
@@ -562,6 +566,7 @@ const DestinationDetails = () => {
             {!cookiesAccepted && <CookieConsent onAccept= {handleCookiesAcceptance}/> }
             <h2> {data.state.location.toUpperCase()} </h2>
 
+            
             <p className='location-details'>{getApiResponse.country_data[0].description}</p>
             
             {/* Hotels */}

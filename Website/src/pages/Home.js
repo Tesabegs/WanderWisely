@@ -22,13 +22,18 @@ const Home = () => {
 
   const [location, setLocation] = useState('');
 
+
   const handleInputChange = (event) => {
     setLocation(event.target.value);
   };
 
+  
+
 
   return (
+
     <div className="containers">
+    
         <div className='hero-image'id="overlay">
 
         <div className="hero">
