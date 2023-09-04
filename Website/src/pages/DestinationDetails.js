@@ -17,7 +17,9 @@ const DestinationDetails = () => {
     const [showHotelModal, setShowHotelModal] = useState(false);
     const [showHotelUbModal, setShowHotelUbModal] = useState(false);
     const [showAttractionModal, setShowAttractionModal] = useState(false);
+    const [showAttractionUbModal, setShowAttractionUbModal] = useState(false);
     const [showRestaurantModal, setShowRestaurantModal] = useState(false);
+    const [showRestaurantUbModal, setShowRestaurantUbModal] = useState(false);
 
     const [loading, setLoading] = useState(true);
 
@@ -29,6 +31,9 @@ const DestinationDetails = () => {
                 setShowAttractionModal(false)
                 setShowRestaurantModal(false)
                 setShowHotelUbModal(false)
+                setShowAttractionUbModal(false)
+                setShowRestaurantUbModal(false)
+
                 break;
             
             case "hotel_ub":
@@ -36,7 +41,8 @@ const DestinationDetails = () => {
                 setShowAttractionModal(false)
                 setShowRestaurantModal(false)
                 setShowHotelUbModal(true)
-
+                setShowAttractionUbModal(false)
+                setShowRestaurantUbModal(false)
                 break;
 
             case "attraction":
@@ -44,14 +50,35 @@ const DestinationDetails = () => {
                 setShowAttractionModal(true)
                 setShowRestaurantModal(false)
                 setShowHotelUbModal(false)
+                setShowAttractionUbModal(false)
+                setShowRestaurantUbModal(false)
                 break;
             
+            case "attraction_ub":
+                setShowHotelModal(false)
+                setShowAttractionModal(false)
+                setShowRestaurantModal(false)
+                setShowHotelUbModal(false)
+                setShowAttractionUbModal(true)
+                setShowRestaurantUbModal(false)
+                break;
+    
             case "restaurant":
                 setShowHotelModal(false)
                 setShowAttractionModal(false)
                 setShowRestaurantModal(true)
                 setShowHotelUbModal(false)
-
+                setShowAttractionUbModal(false)
+                setShowRestaurantUbModal(false)
+                break;
+            
+            case "restaurant_ub":
+                setShowHotelModal(false)
+                setShowAttractionModal(false)
+                setShowRestaurantModal(false)
+                setShowHotelUbModal(false)
+                setShowAttractionUbModal(false)
+                setShowRestaurantUbModal(true)
                 break;
         
             default:
@@ -64,7 +91,9 @@ const DestinationDetails = () => {
         setShowHotelModal(false);
         setShowHotelUbModal(false);
         setShowAttractionModal(false);
+        setShowAttractionUbModal(false);
         setShowRestaurantModal(false);
+        setShowRestaurantUbModal(false);
     };
 
     function trimTextToNCharacters(text, n=501) {
@@ -119,12 +148,12 @@ const DestinationDetails = () => {
   };
 
     // get the value of a cookie by name
-      function getCookie(name) {
+    function getCookie(name) {
         const cookies = document.cookie.split('; ');
         
         for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].split('=');
-            const cookieName = decodeURIComponent(cookie[0]);
+            const cookieName =  decodeURIComponent(cookie[0]);
             
             if (cookieName === name) {
                 return decodeURIComponent(cookie[1]);
@@ -149,10 +178,9 @@ const DestinationDetails = () => {
         
             Cookies.set(name, existingData);
 
-            console.log("cookie data by name => ", getCookie(name))
-            console.log("cookie data by value => ", JSON.parse(getCookie(name)))
-            console.log("cookie data => ", decodeURIComponent(document.cookie))
-
+            // console.log("cookie data by name => ", getCookie(name))
+            // console.log("cookie data by value => ", JSON.parse(getCookie(name)))
+            // console.log("cookie data => ", decodeURIComponent(document.cookie))
         }
         
     
@@ -191,15 +219,9 @@ const DestinationDetails = () => {
 
 
     useEffect(() => {
-        // Fetch data on page load
-        // async function callHandleGetRequest() {
-        //     await handleGetRequest(location);
-        // }
-        // callHandleGetRequest();
 
         let cookie_data_obj = getCookie("Hotel")
         let cookie_data = ""
-
 
         if (cookie_data_obj != null) {
             cookie_data_obj= JSON.parse(cookie_data_obj);
@@ -238,6 +260,16 @@ const DestinationDetails = () => {
         setCurrentHotelUbPage(newPage);
     };
 
+    const [currentAttractionUbPage, setCurrentAttractionUbPage] = useState(1);
+    const handleAttractionUbPageChange = (newPage) => {
+        setCurrentAttractionUbPage(newPage);
+    };
+
+    const [currentRestaurantUbPage, setCurrentRestaurantUbPage] = useState(1);
+    const handleRestaurantUbPageChange = (newPage) => {
+        setCurrentRestaurantUbPage(newPage);
+    };
+
 
     if (loading) { 
         return;
@@ -245,7 +277,6 @@ const DestinationDetails = () => {
 
     const ModalItem = ({cards, showModal, category}) => {
         
-
         // for the user_based flow, convert review_data to an array
         for (let i = 0; i<cards.length; i++) {
 
@@ -557,7 +588,139 @@ const DestinationDetails = () => {
                 </div>
         }
     }
-    
+
+    //Attraction data user based
+    const AttractionUbCardsData = getApiResponse.attractions_data_ub;
+
+
+    const AttractionUbCardsPerPage = 3;
+    const totalAttractionUbCards = AttractionUbCardsData?.length;
+    const lastAttractionUbCardIndex = currentAttractionUbPage * AttractionUbCardsPerPage;
+    const firstAttractionUbCardIndex = lastAttractionUbCardIndex - AttractionUbCardsPerPage;
+    const currentAttractionUbCards = AttractionUbCardsData?.slice(firstAttractionUbCardIndex, lastAttractionUbCardIndex);
+    const totalAttractionUbPages = Math.ceil(totalAttractionUbCards / AttractionUbCardsPerPage);
+
+    const AttractionUbCardList = ({cards}) => {
+        return (
+            <Row>
+                {cards.map((item, index) => (
+                    <Col key={index}>
+                        {/* onClick={() => handleCardClick(index, "Attraction")} */}
+                        <Card style={{ width: '21rem', cursor: 'pointer' }} onClick={() => handleCardClick(index, "attraction_ub")} >
+                            <Card.Img variant="top" fluid src={item.image_link} />
+                            <Card.Body className='card-body'>
+                                    <div style={{display : "flex", justifyContent:"space-between"}}>
+                                        <Card.Title>{item.name}</Card.Title>
+                                        <Row>
+                                            <Rating
+                                            initialValue={item.rating}
+                                            allowFraction={true}
+                                            readonly={true}
+                                            size={25}
+                                            />
+                                        </Row>
+                                    </div>
+                                    <Card.Text>
+                                        {item.description.length > 120
+                                            ? item.description.substring(0,120) + "..."
+                                            : item.description}
+                                    </Card.Text>
+                                    {/* <Button variant="primary">Go somewhere</Button> */}
+                                </Card.Body>
+                        </Card>
+                    </Col>
+                ))}
+                <ModalItem cards={cards} showModal={showAttractionUbModal} category={"Attraction"}></ModalItem>
+            </Row>
+        );
+    };
+
+    const AttractionUbData = () => {
+        if (AttractionUbCardsData.length > 0) {
+            return <div style={{marginTop:"20px"}}>
+                        <h3 className='interest-text'>Based on your Interests</h3>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <h5>Attractions</h5>
+                        <Pagination>
+                            {Array.from({ length: totalAttractionUbPages }).map((_, index) => (
+                            <Pagination.Item key={index} active={index + 1 === currentAttractionUbPage} onClick={() => handleAttractionUbPageChange(index + 1)}>                                                                         
+                            {index + 1}
+                            </Pagination.Item>
+                            ))}
+                        </Pagination>
+                    </div>
+                    
+                    <AttractionUbCardList cards={currentAttractionUbCards} selectedCardIndex={selectedCardIndex} onCardClick={setSelectedCardIndex}/> 
+                </div>
+        }
+    }
+
+    //Restaurant data user based
+    const RestaurantUbCardsData = getApiResponse.restaurants_data_ub;
+
+
+    const RestaurantUbCardsPerPage = 3;
+    const totalRestaurantUbCards = RestaurantUbCardsData?.length;
+    const lastRestaurantUbCardIndex = currentRestaurantUbPage * RestaurantUbCardsPerPage;
+    const firstRestaurantUbCardIndex = lastRestaurantUbCardIndex - RestaurantUbCardsPerPage;
+    const currentRestaurantUbCards = RestaurantUbCardsData?.slice(firstRestaurantUbCardIndex, lastRestaurantUbCardIndex);
+    const totalRestaurantUbPages = Math.ceil(totalRestaurantUbCards / RestaurantUbCardsPerPage);
+
+    const RestaurantUbCardList = ({cards}) => {
+        return (
+            <Row>
+                {cards.map((item, index) => (
+                    <Col key={index}>
+                        {/* onClick={() => handleCardClick(index, "Restaurant")} */}
+                        <Card style={{ width: '21rem', cursor: 'pointer' }} onClick={() => handleCardClick(index, "restaurant_ub")} >
+                            <Card.Img variant="top" fluid src={item.image_link} />
+                            <Card.Body className='card-body'>
+                                    <div style={{display : "flex", justifyContent:"space-between"}}>
+                                        <Card.Title>{item.name}</Card.Title>
+                                        <Row>
+                                            <Rating
+                                            initialValue={item.rating}
+                                            allowFraction={true}
+                                            readonly={true}
+                                            size={25}
+                                            />
+                                        </Row>
+                                    </div>
+                                    <Card.Text>
+                                       {item.description.length > 120
+                                            ? item.description.substring(0,120) + "..."
+                                            : item.description}
+                                    </Card.Text>
+                                    {/* <Button variant="primary">Go somewhere</Button> */}
+                                </Card.Body>
+                        </Card>
+                    </Col>
+                ))}
+               <ModalItem cards={cards} showModal={showRestaurantUbModal} category={"Restaurant"}></ModalItem>
+            </Row>
+        );
+    };
+
+    const RestaurantUbData = () => {
+        if (RestaurantUbCardsData.length > 0) {
+            return <div style={{marginTop:"20px"}}>
+                        <h3 className='interest-text'>Based on your Interests</h3>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <h5>Restaurants</h5>
+                        <Pagination>
+                            {Array.from({ length: totalRestaurantUbPages }).map((_, index) => (
+                            <Pagination.Item key={index} active={index + 1 === currentRestaurantUbPage} onClick={() => handleRestaurantUbPageChange(index + 1)}>                                                                         
+                            {index + 1}
+                            </Pagination.Item>
+                            ))}
+                        </Pagination>
+                    </div>
+                    
+                    <RestaurantUbCardList cards={currentRestaurantUbCards} selectedCardIndex={selectedCardIndex} onCardClick={setSelectedCardIndex}/> 
+                </div>
+        }
+    }
+
     return (
         
 
@@ -567,7 +730,7 @@ const DestinationDetails = () => {
             <h2> {data.state.location.toUpperCase()} </h2>
 
             
-            <p className='location-details'>{getApiResponse.country_data[0].description}</p>
+            <p className='location-details'>{getApiResponse.country_data ? getApiResponse.country_data[0].description : ""}</p>
             
             {/* Hotels */}
             <HotelData />
@@ -580,6 +743,12 @@ const DestinationDetails = () => {
 
             {/* Hotels User based*/}
             <HotelUbData />
+
+            {/* Attractions User based*/}
+            <AttractionUbData />
+
+            {/* Restaurants User based */}
+            <RestaurantUbData />
         
         </Container>
     );

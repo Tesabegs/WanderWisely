@@ -401,11 +401,24 @@ def fetchAttractionsUb(cookie_data : str, location = None) -> dict[str, list[any
 
     # Create a DataFrame
     column_names = [
-        'id', 'Average Rating', 'user_name', 'user_review', 'name', 'rating',
+        'id', 'user_rating', 'user_name', 'user_review', 'name', 'rating',
         'experience', 'amenities', 'address', 'country',
-        'description_link', 'discover_link', 'image_link'
+        'discover_link', 'image_link', 'description'
     ]
     attractions_df = pd.DataFrame(attraction, columns=column_names)
+
+    # Group user-related columns into a list of dictionaries
+    user_data = attractions_df[['user_name', 'user_review', 'user_rating']].apply(lambda row: {
+        'user_name': row['user_name'],
+        'user_review': row['user_review'],
+        'user_rating': row['user_rating']
+    }, axis=1)
+
+    # Create the 'review_data' column as an array of user data
+    attractions_df['review_data'] = user_data.tolist()
+
+    # Drop the 'user_name', 'user_review', and 'user_rating' columns
+    attractions_df.drop(columns=['user_name', 'user_review', 'user_rating'], inplace=True)
 
     # convert countries to lower case
     attractions_df['country'] = attractions_df['country'].str.lower()
@@ -434,11 +447,24 @@ def fetchRestaurantsUb(cookie_data : str, location = None) -> dict[str, list[any
 
     # Create a DataFrame
     column_names = [
-        'id', 'Average Rating', 'user_name', 'user_review', 'name', 'rating',
+        'id', 'user_rating', 'user_name', 'user_review', 'name', 'rating',
         'experience', 'amenities', 'address', 'country',
-        'description', 'discover_link', 'image_link'
+        'discover_link', 'image_link', 'description'
     ]
     restaurants_df = pd.DataFrame(restaurant, columns=column_names)
+
+    # Group user-related columns into a list of dictionaries
+    user_data = restaurants_df[['user_name', 'user_review', 'user_rating']].apply(lambda row: {
+        'user_name': row['user_name'],
+        'user_review': row['user_review'],
+        'user_rating': row['user_rating']
+    }, axis=1)
+
+    # Create the 'review_data' column as an array of user data
+    restaurants_df['review_data'] = user_data.tolist()
+
+    # Drop the 'user_name', 'user_review', and 'user_rating' columns
+    restaurants_df.drop(columns=['user_name', 'user_review', 'user_rating'], inplace=True)
 
     # convert countries to lower case
     restaurants_df['country'] = restaurants_df['country'].str.lower()
@@ -485,8 +511,8 @@ def fetchAllData (location : str, cookieData: str = None) -> dict[str, list[any]
         "restaurant_data": fetchRestaurantsByLocation(location),
         "attraction_data": fetchAttractionsByLocation(location),
         "hotel_data_ub" : fetchHotelsUb(cookieData, location),
-        # "attractions_data_ub" : fetchAttractionsUb(cookieData, location),
-        # "restaurants_data_ub" : fetchRestaurantsUb(cookieData, location),
+        "attractions_data_ub" : fetchAttractionsUb(cookieData, location),
+        "restaurants_data_ub" : fetchRestaurantsUb(cookieData, location),
         "country_data" : fetchCountry(location)
     }
     return data
