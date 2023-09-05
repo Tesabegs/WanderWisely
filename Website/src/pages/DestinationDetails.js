@@ -106,17 +106,26 @@ const DestinationDetails = () => {
     const [showCookieModal, setShowCookieModal] = useState(true);
 
     const CookieConsent = ({onAccept}) => {
-        const [showPrompt, setShowPrompt] = useState(true);
+        const [showPrompt, setShowPrompt] = useState(false);
 
         const handleAccept =() => {
             setShowPrompt(false);
             onAccept(true);
+            Cookies.set('CookieConsent', 'accepted', {expires:365});
         };
 
         const handleDecline = () => {
             setShowPrompt(false);
             onAccept(false);
+            Cookies.set('CookieConsent', 'accepted', {expires:365});
         };
+
+        useEffect(() => {
+            const userChoice = Cookies.get('CookieConsent');
+            if (!userChoice) {
+                setShowPrompt(true);
+            }
+        })
 
         if (!showPrompt) {
             return null;
@@ -146,6 +155,8 @@ const DestinationDetails = () => {
 
         }
   };
+  
+
 
     // get the value of a cookie by name
     function getCookie(name) {

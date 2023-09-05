@@ -22,7 +22,6 @@ def fetchHotels():
     
     location=request.args.get('location').lower()
     cookie_data = request.get_json().get("cookie_data")
-
     
 
     print("cookieData is ======> ", cookie_data)
