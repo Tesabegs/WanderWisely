@@ -346,7 +346,7 @@ const DestinationDetails = () => {
     const firstHotelCardIndex = lastHotelCardIndex - HotelsCardsPerPage;
     const currentHotelCards = HotelsCardsData?.slice(firstHotelCardIndex, lastHotelCardIndex);
     const totalHotelPages = Math.ceil(totalHotelCards / HotelsCardsPerPage);
-
+    
     const HotelsCardList = ({cards}) => {
         return (
             <Row>
@@ -449,25 +449,25 @@ const DestinationDetails = () => {
     };
 
     const AttractionData = () => {
-    if (AttractionsCardsData.length > 0) {
-        return <div style={{marginTop:"25px"}}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <h5>Attractions</h5>
-                    <Pagination>
-                        {Array.from({ length: totalAttractionPages }).map((_, index) => (
-                        <Pagination.Item key={index} active={index + 1 === currentAttractionPage} onClick={() => handleAttractionPageChange(index + 1)}>                                                                         
-                        {index + 1}
-                        </Pagination.Item>
-                        ))}
-                    </Pagination>
+        if (AttractionsCardsData.length > 0) {
+            return <div style={{marginTop:"25px"}}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <h5>Attractions</h5>
+                        <Pagination>
+                            {Array.from({ length: totalAttractionPages }).map((_, index) => (
+                            <Pagination.Item key={index} active={index + 1 === currentAttractionPage} onClick={() => handleAttractionPageChange(index + 1)}>                                                                         
+                            {index + 1}
+                            </Pagination.Item>
+                            ))}
+                        </Pagination>
+                    </div>
+                
+                    <AttractionsCardList cards={currentAttractionCards} selectedCardIndex={selectedCardIndex} onCardClick={setSelectedCardIndex}/>
                 </div>
-            
-                <AttractionsCardList cards={currentAttractionCards} selectedCardIndex={selectedCardIndex} onCardClick={setSelectedCardIndex}/>
-                </div>
-    }
-    else {
-        return <div style={{marginTop:"25px"}}>No Attractions data yet for {data.state.location.toUpperCase()} </div>
-    }
+        }
+        else {
+            return <div style={{marginTop:"25px"}}>No Attractions data yet for {data.state.location.toUpperCase()} </div>
+        }
     }
 
     //Restaurant
@@ -738,6 +738,7 @@ const DestinationDetails = () => {
         <Container className='details-container'>
 
             {!cookiesAccepted && <CookieConsent onAccept= {handleCookiesAcceptance}/> }
+            
             <h2> {data.state.location.toUpperCase()} </h2>
 
             
